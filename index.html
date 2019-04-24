@@ -19,23 +19,32 @@
       <input id="m" autocomplete="off" /><button>Send</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
-<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-<script>
-  var socket = io();
-  var pseudo = window.prompt('Quel est ton pseudo ?');
-  socket.emit('user', pseudo);
-    $('form').submit(function(e){
-      e.preventDefault(); // prevents page reloading
-      socket.emit('message', $('#m').val());
-      $('#m').val('');
-      return false;
-    });
-    socket.on('message', function(data){
-      insert_msg(data.pseudo, data.message)
-    });
-    function insert_msg(message, pseudo){
-      $('#messages').append($('<li>').text(pseudo + ' : ' + message));
-    }
-</script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      var socket = io();
+      var pseudo = window.prompt('Quel est ton pseudo ?');
+      socket.emit('user', pseudo);
+      $('form').submit(function(e){
+          e.preventDefault(); // prevents page reloading
+          socket.emit('message', $('#m').val());
+          $('#m').val('');
+          return false;
+        });
+      socket.on('user', function(pseudo){
+        $('#messages').append($('<li>').text(pseudo+ ' connected'))
+      })
+      socket.on('disconnect', function(pseudo){
+        $('#messages').append($('<li>').text(pseudo+ ' disconnected'))
+      })
+      // socket.on('user', function(pseudo){
+      //   $('#messages').append($('<li>').text(pseudo + ' connected'))
+      // })
+      socket.on('message', function(data){
+        insert_msg(data.pseudo, data.message)
+      });
+      function insert_msg(pseudo, message){
+        $('#messages').append($('<li>').text(pseudo + ' : ' + message));
+      }
+    </script>
   </body>
 </html>

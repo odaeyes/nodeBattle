@@ -6,14 +6,16 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
-io.on('connection', function(socket,pseudo){
+io.on('connection', function(socket, pseudo){
+
 	socket.on('user', function(pseudo){
 		socket.pseudo = pseudo;
 		io.emit('user', pseudo);
+		// socket.emit('con', pseudo);
 	})
-	io.emit('message', pseudo+ ' connected');
-	socket.on('disconnect',function(pseudo){
-		io.emit('message',pseudo+ ' disconnected');
+	socket.on('disconnect', function(pseudo){
+
+		io.emit('disconnect', socket.pseudo);
 	});
 
   socket.on('message', function(message){
