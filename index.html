@@ -21,18 +21,21 @@
     <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
-  $(function () {
-    var socket = io();
+  var socket = io();
+  var pseudo = window.prompt('Quel est ton pseudo ?');
+  socket.emit('user', pseudo);
     $('form').submit(function(e){
       e.preventDefault(); // prevents page reloading
       socket.emit('message', $('#m').val());
       $('#m').val('');
       return false;
     });
-    socket.on('message', function(msg){
-      $('#messages').append($('<li>').text(msg));
+    socket.on('message', function(data){
+      insert_msg(data.pseudo, data.message)
     });
-  });
+    function insert_msg(message, pseudo){
+      $('#messages').append($('<li>').text(pseudo + ' : ' + message));
+    }
 </script>
   </body>
 </html>

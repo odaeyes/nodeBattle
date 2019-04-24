@@ -6,13 +6,18 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
-io.on('connection', function(socket){
-	io.emit('message','an user connected');
-	socket.on('disconnect',function(){
-		io.emit('message','an user disconnected');
+io.on('connection', function(socket,pseudo){
+	socket.on('user', function(pseudo){
+		socket.pseudo = pseudo;
+		io.emit('user', pseudo);
+	})
+	io.emit('message', pseudo+ ' connected');
+	socket.on('disconnect',function(pseudo){
+		io.emit('message',pseudo+ ' disconnected');
 	});
-  socket.on('message', function(msg){
-    io.emit('message', msg);
+
+  socket.on('message', function(message){
+    io.emit('message', {pseudo: socket.pseudo, message: message});
 
   });
 });
