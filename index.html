@@ -23,19 +23,36 @@
 <script>
   var socket = io();
   var pseudo = window.prompt('Quel est ton pseudo ?');
+  
+  // on envoit au serveur via le socket le pseudo
   socket.emit('user', pseudo);
-    $('form').submit(function(e){
+  
+  // on traite l'info de la requete user  que l'on recoit 
+  socket.on ('user', function(pseudo){
+    $('#messages').append($('<li>').text(pseudo + ' is connected'));
+  })
+  socket.on ('disconnect', function(pseudo){
+    $('#messages').append($('<li>').text(pseudo + ' left'));
+  })
+
+
+  $('form').submit(function(e){
       e.preventDefault(); // prevents page reloading
-      socket.emit('message', $('#m').val());
-      $('#m').val('');
+      socket.emit('message', $('#m').val()); // récupère la valeur de l'input
+      $('#m').val('');// on vide
       return false;
-    });
-    socket.on('message', function(data){
-      insert_msg(data.pseudo, data.message)
-    });
-    function insert_msg(message, pseudo){
-      $('#messages').append($('<li>').text(pseudo + ' : ' + message));
-    }
+  });
+    
+ // on recoit le résulat pour affiche le chat
+  socket.on('message', function(data){
+    insert_msg(data.pseudo, data.message)
+  });
+    
+
+  // On affiche le résultat le résultat où l'on veut
+  function insert_msg(pseudo, message){
+    $('#messages').append($('<li>').text(pseudo + ' : ' + message));
+  }
 </script>
   </body>
 </html>
