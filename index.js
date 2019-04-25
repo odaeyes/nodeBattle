@@ -1,5 +1,4 @@
-var express = require('express');
-var app = express();
+var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000; // connection heroku
@@ -7,7 +6,7 @@ var port = process.env.PORT || 3000; // connection heroku
  * Gestion des requêtes HTTP des utilisateurs en leur renvoyant les fichiers du dossier 'public'
  */
 app.use("/", express.static(__dirname + "/public"));
-app.get('/:room?', function(req, res) {res.sendFile('index.html', {root: __dirname});});
+//app.get('/:room?', function(req, res) {res.sendFile('index.html', {root: __dirname});});
 
 
 
