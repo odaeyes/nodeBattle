@@ -6,7 +6,7 @@ var port = process.env.PORT || 3000; // connection heroku
  * Gestion des requêtes HTTP des utilisateurs en leur renvoyant les fichiers du dossier 'public'
  */
 app.get('/', function(req, res){
-  res.sendFile(__dirname + 'public/index.html');
+  res.sendFile(__dirname + '/public/index.html');
 });
 //app.get('/:room?', function(req, res) {res.sendFile('index.html', {root: __dirname});});
 
@@ -63,6 +63,6 @@ io.on('connection', function (socket) {
 /**
  * Lancement du serveur en écoutant les connexions arrivant sur le port 3000
  */
-http.listen(3000, function () {
-  console.log('Server is listening on *:3000');
+http.listen(port, function(){
+  console.log('listening on ${ port }');
 });
