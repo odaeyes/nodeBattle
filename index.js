@@ -1,10 +1,30 @@
 var app = require('express')();
-var http = require('http').createServer(app);
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
 app.get('/', function(req, res){
-  res.send('<h1>Hello world</h1>');
+	res.sendFile(__dirname + '/index.html');
 });
 
+io.on('connection', function(socket,pseudo){
+	socket.on('user', function(pseudo){
+		socket.pseudo = pseudo;
+		io.emit('user', pseudo);
+	})
+	
+	socket.on('message', function(message){
+		io.emit('message', {pseudo: socket.pseudo, message: message});
+	});
+
+
+	socket.on('disconnect', function(pseudo){
+		io.emit('disconnect', socket.pseudo);
+	});
+
+});
+
+
+
 http.listen(3000, function(){
-  console.log('listening on *:3000');
+	console.log('listening on *:3000');
 });
