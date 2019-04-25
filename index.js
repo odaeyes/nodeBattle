@@ -1,30 +1,67 @@
-var app = require('express')();
+var express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var port = process.env.PORT || 3000;
-app.get('/', function(req, res){
-	res.sendFile(__dirname + '/index.html');
+var port = process.env.PORT || 3000; // connection heroku
+/**
+ * Gestion des requêtes HTTP des utilisateurs en leur renvoyant les fichiers du dossier 'public'
+ */
+app.use("/", express.static(__dirname + "/public"));
+app.get('/:room?', function(req, res) {res.sendFile('index.html', {root: __dirname});});
+
+
+
+io.on('connection', function (socket) {
+
+  var loggedUser; // Utilisateur connecté a la socket
+
+  /**
+   * Déconnexion d'un utilisateur : broadcast d'un 'service-message'
+   */
+  socket.on('disconnect', function () {
+    if (loggedUser !== undefined) {
+      console.log('user disconnected : ' + loggedUser.username);
+      var serviceMessage = {
+        text: 'User "' + loggedUser.username + '" disconnected',
+        type: 'logout'
+      };
+      socket.broadcast.emit('service-message', serviceMessage);
+    }
+  });
+
+  /**
+   * Connexion d'un utilisateur via le formulaire :
+   *  - sauvegarde du user
+   *  - broadcast d'un 'service-message'
+   */
+  socket.on('user-login', function (user) {
+    loggedUser = user;
+    if (loggedUser !== undefined) {
+      var serviceMessage = {
+        text: 'User "' + loggedUser.username + '" logged in',
+        type: 'login'
+      };
+      socket.broadcast.emit('service-message', serviceMessage);
+    }
+  });
+
+  /**
+   * Réception de l'événement 'chat-message' et réémission vers tous les utilisateurs
+   */
+  socket.on('chat-message', function (message) {
+    message.username = loggedUser.username;
+    io.emit('chat-message', message);
+    console.log('Message de : ' + loggedUser.username);
+  });
+
+
+
+
 });
 
-io.on('connection', function(socket,pseudo){
-	socket.on('user', function(pseudo){
-		socket.pseudo = pseudo;
-		io.emit('user', pseudo);
-	})
-	
-	socket.on('message', function(message){
-		io.emit('message', {pseudo: socket.pseudo, message: message});
-	});
-
-
-	socket.on('disconnect', function(pseudo){
-		io.emit('disconnect', socket.pseudo);
-	});
-
-});
-
-
-
-http.listen(port, function(){
-	console.log('listening on ${ port }');
+/**
+ * Lancement du serveur en écoutant les connexions arrivant sur le port 3000
+ */
+http.listen(3000, function () {
+  console.log('Server is listening on *:3000');
 });
